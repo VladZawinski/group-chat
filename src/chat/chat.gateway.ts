@@ -1,7 +1,9 @@
 import { Logger } from "@nestjs/common";
-import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
+import { MessageBody, OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Socket } from 'socket.io';
 import { AuthService } from "src/auth/auth.service";
+import { MessageService } from "src/message/message.service";
+import { UserService } from "src/user/user.service";
 
 @WebSocketGateway({
     cors: {
@@ -10,7 +12,9 @@ import { AuthService } from "src/auth/auth.service";
 })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
     constructor(
-        private readonly authService: AuthService
+        private readonly authService: AuthService,
+        private readonly userService: UserService,
+        private readonly messageService: MessageService
     ) {
         this.logger.log("Chat Gateway")
     }
@@ -20,25 +24,29 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
     }
     @WebSocketServer()
     server: Socket;
-    handleConnection(client: any, ...args: any[]) {
-        this.logger.log(client)
+    async handleConnection(client: any, ...args: any[]) {
         const token = client.handshake.query.token;
-        client.token = token;
-        let encrypted = this.authService.encrypt('TOKEN');
-        console.log(`Encrypted ${encrypted}`);
-        let decr = this.authService.decrypt(encrypted);
-        console.log(`Decrypted ${decr}`);
-        
+        if(token != null) {
+            client.token = token;
+            let decrypted = this.authService.decrypt(token);
+            let user = await this.userService.findOne(decrypted);
+            if(user == null) {
+                return client.disconnect()
+            }
+            client.userId = user.id;
+        }
     }
     afterInit(server: any) {
         this.logger.log("Connected")
         server.emit("onChanged", {})
     }
     @SubscribeMessage('sendMessage')
-    handlSendMessage(client: any, data: string) {
-    
-        this.server.emit(ON_NEW_MESSAGE_ADDED_EVENT, {})
-        this.server.emit(ON_CONVERSATION_CHANGED_EVENT, {})
+    async handlSendMessage(client: any, data: any) {
+        let userId = client.userId
+        let sentMessage = await this.messageService.create(userId, data.message)
+        let lastMessages = await this.messageService.getLast20Messages()
+        this.server.emit(ON_NEW_MESSAGE_ADDED_EVENT, sentMessage)
+        this.server.emit(ON_CONVERSATION_CHANGED_EVENT, lastMessages)
     }
 
 }

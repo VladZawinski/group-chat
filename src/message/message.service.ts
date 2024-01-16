@@ -1,17 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { MessageDto, mapJsonToMessageDto } from './dto/message.dto';
 
 @Injectable()
 export class MessageService {
     constructor(private readonly prismaService: PrismaService) {}
-    getLast20Messages() {
-        return this.prismaService.message.findMany({take: 20, orderBy: {createdAt: 'desc'}})
+    async getLast20Messages(): Promise<MessageDto[]> {
+        let messages = await this.prismaService.message.findMany({
+            take: 20,
+            orderBy: {createdAt: 'desc'},
+            include: {user: true}
+        });
+        return messages.map(e => mapJsonToMessageDto(e));
     }
-    create(userId: string, body: string) {
+    async create(userId: number, body: string) {
         return this.prismaService.message.create({
             data: {
-                userId: userId,
-                content: body
+                content: body,
+                userId: userId
             }
         })
     }

@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
-import * as bcrypt from 'bcrypt';
 import { Role } from '@prisma/client';
-import * as crypto from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -11,7 +9,7 @@ export class AuthService {
     async generateToken(email: string, name: string): Promise<string> {
         const existing = await this.userService.findOne(email);
         if(existing != null) {
-            return this.generateHash(existing.username)
+            return this.encrypt(existing.username)
         } else {
             const newUser = await this.userService.createOne({
                 data: {
@@ -20,7 +18,7 @@ export class AuthService {
                     name: name
                 }
             })
-            return this.generateHash(newUser.username)
+            return this.encrypt(newUser.username)
         }
     }
     encrypt(email: string): string {
@@ -35,11 +33,5 @@ export class AuthService {
         // const dechpher = crypto.createDecipheriv('aes256', 'password', 'IVIV')
         // var decrypted = dechpher.update(hash, 'hex', 'utf8') + dechpher.final('utf8');
         // return decrypted;
-    }
-    generateHash(email: string) {
-        return bcrypt.hash(email, 10);
-    }
-    verifyHash(hash: string, expected: string) {
-        return bcrypt.compare(expected, hash)
     }
 }
