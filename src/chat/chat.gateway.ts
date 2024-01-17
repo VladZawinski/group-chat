@@ -44,9 +44,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
     async handlSendMessage(client: any, data: any) {
         let userId = client.userId
         let sentMessage = await this.messageService.create(userId, data.message)
-        let lastMessages = await this.messageService.getLast20Messages()
         this.server.emit(ON_NEW_MESSAGE_ADDED_EVENT, sentMessage)
-        this.server.emit(ON_CONVERSATION_CHANGED_EVENT, lastMessages)
     }
 
 }

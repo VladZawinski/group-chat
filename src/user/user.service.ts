@@ -1,6 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { BannedUser, Prisma, User } from '@prisma/client';
+import { BannedUser, BlockedUser, Prisma, User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { BanUserDto, mapBanUser } from './dto/ban-user.dto';
+import { BlockedUserDto, mapBlockUser } from './dto/block-user.dto';
 
 @Injectable()
 export class UserService {
@@ -8,15 +10,24 @@ export class UserService {
     async findOne(username: string): Promise<User | undefined> {
         return this.prismaService.user.findFirst({ where: { username }});
     }
-    async createOne(user: Prisma.UserCreateArgs) {
+    async createOne(user: Prisma.UserCreateArgs){
         return this.prismaService.user.create(user)
     }
 
     async findAllUser(): Promise<User[]> {
         return this.prismaService.user.findMany()
     }
-    async findAllBannedUser(): Promise<BannedUser[]> {
-        return this.prismaService.bannedUser.findMany()
+    async isGotBanned(userId: number): Promise<boolean> {
+        let banned = await this.prismaService.bannedUser.count({where: { userId }})
+        return banned != 0
+    }
+    async findAllBannedUser(): Promise<BanUserDto[]> {
+        let bannedUsers = await this.prismaService.bannedUser.findMany({
+            include: {
+                user: true
+            }
+        })
+        return bannedUsers.map(e => mapBanUser(e));
     }
     async banUser(userId: number) {
         return this.prismaService.bannedUser.create({
@@ -35,7 +46,7 @@ export class UserService {
     }
     async blockUser(forUserId: number, userToBlockId: number) {
         let existing = await this.prismaService.blockedUser.findFirst({where: { userId: forUserId, blockedId: userToBlockId}});
-        if(existing == null) {
+        if(existing != null) {
             throw new BadRequestException()
         }
         return this.prismaService.blockedUser.create({
@@ -53,7 +64,8 @@ export class UserService {
             where: {id: blockId}
         })
     }
-    getBlockUsersById(forUserId: number) {
-        return this.prismaService.blockedUser.findMany({where: { userId: forUserId }})
+    async getBlockUsersById(forUserId: number): Promise<BlockedUserDto[]> {
+        let blocked = await this.prismaService.blockedUser.findMany({where: { userId: forUserId }, include: {blocked: true}});
+        return blocked.map(e => mapBlockUser(e))
     }
 }
