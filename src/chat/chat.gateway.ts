@@ -33,6 +33,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
             if(user == null) {
                 return client.disconnect()
             }
+            let hasBanned = await this.userService.isGotBanned(user.id);
+            if(hasBanned) {
+                return client.disconnect()
+            }
             client.userId = user.id;
         }
     }

@@ -20,7 +20,7 @@ export class MessageService {
             throw new ForbiddenException()
         }
         let blockedUsers = await this.userService.getBlockUsersById(userId);
-        
+        let bannedUsers = await this.userService.findAllBannedUser();
         let filteredMessages = messages.filter((message) => {
             const isNotBlocked = !blockedUsers.some(
               (blockedUser) => blockedUser.blocked.id === message.user.id
