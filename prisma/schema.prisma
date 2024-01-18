@@ -17,7 +17,6 @@ model User {
   role Role @default(USER)
   messages Message[]
   blockedUsers BlockedUser[] @relation("block")
-  users BlockedUser? @relation("user")
   bannedUser BannedUser?
   createdAt  DateTime   @default(now())
 }
@@ -32,8 +31,7 @@ model Message {
 
 model BlockedUser {
   id        Int     @id @default(autoincrement())
-  userId Int @unique
-  user      User @relation("user", fields: [userId], references: [id])
+  userId Int
   blockedId Int
   blocked   User   @relation("block", fields: [blockedId], references: [id])
   createdAt DateTime @default(now())
