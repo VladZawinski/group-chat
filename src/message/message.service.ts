@@ -25,10 +25,11 @@ export class MessageService {
             const isNotBlocked = !blockedUsers.some(
               (blockedUser) => blockedUser.blocked.id === message.user.id
             );
-          
-            return isNotBlocked;
+            const isNotBanned = !bannedUsers.some(
+                (bannedUser) => bannedUser.user.id === message.user.id
+            )
+            return isNotBlocked && isNotBanned;
           });
-          
         return filteredMessages.map(e => mapJsonToMessageDto(e));
     }
     async create(userId: number, body: string) {
