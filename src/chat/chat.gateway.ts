@@ -18,9 +18,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
     ) {
         this.logger.log("Chat Gateway")
     }
+    private onlineUsers = [];
     private logger: Logger = new Logger('Chat-Gateway');
     handleDisconnect(client: any) {
         this.logger.log('Disconnected');
+        this.removeOnlineUser(client)
     }
     @WebSocketServer()
     server: Socket;
@@ -38,6 +40,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
                 return client.disconnect()
             }
             client.userId = user.id;
+            this.addOnlineUser(client.userId);
+            this.emitOnlineUsers();
         }
     }
     afterInit(server: any) {
@@ -50,8 +54,26 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
         let sentMessage = await this.messageService.create(userId, data.message)
         this.server.emit(ON_NEW_MESSAGE_ADDED_EVENT, sentMessage)
     }
+    private addOnlineUser(userId: string) {
+        if (!this.onlineUsers.includes(userId)) {
+            this.onlineUsers.push(userId);
+        }
+    }
+
+    private emitOnlineUsers() {
+        this.server.emit(ON_ONLINE_USERS_CHANGED, this.onlineUsers.length);
+    }
+
+    private removeOnlineUser(client: any) {
+        const index = this.onlineUsers.indexOf(client.userId);
+        if (index !== -1) {
+            this.onlineUsers.splice(index, 1);
+        }
+        this.emitOnlineUsers();
+    }
 
 }
 
 const ON_NEW_MESSAGE_ADDED_EVENT = "onNewMessageAdded"
 const ON_CONVERSATION_CHANGED_EVENT = "onConversationChanged"
+const ON_ONLINE_USERS_CHANGED = "onOnlineUsersChanged"
