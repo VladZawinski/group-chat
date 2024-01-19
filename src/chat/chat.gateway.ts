@@ -40,8 +40,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
                 return client.disconnect()
             }
             client.userId = user.id;
-            this.addOnlineUser(client.userId);
-            this.emitOnlineUsers();
+            client.username = user.username;
+            if(user.username == 'guest@mailinator.com') {
+                this.addOnlineUser(client.userId);
+                this.emitOnlineUsers();
+            }
         }
     }
     afterInit(server: any) {
@@ -65,11 +68,13 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
     }
 
     private removeOnlineUser(client: any) {
-        const index = this.onlineUsers.indexOf(client.userId);
-        if (index !== -1) {
-            this.onlineUsers.splice(index, 1);
+        if(client.username != 'guest@mailinator.com') {
+            const index = this.onlineUsers.indexOf(client.userId);
+            if (index !== -1) {
+                this.onlineUsers.splice(index, 1);
+            }
+            this.emitOnlineUsers();
         }
-        this.emitOnlineUsers();
     }
 
 }
