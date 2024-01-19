@@ -14,4 +14,8 @@ export class MessageController {
         let userId = request.userId;
         return this.messageService.getLast20Messages(userId);
     }
+    @Get('/getMessagesForGuest')
+    getMessagesForGuest() {
+        return this.messageService.getLast20MessagesForGuest();
+    }
 }

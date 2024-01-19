@@ -9,6 +9,21 @@ export class MessageService {
         private readonly prismaService: PrismaService,
         private readonly userService: UserService
     ) {}
+    async getLast20MessagesForGuest(): Promise<MessageDto[]> {
+        let messages = await this.prismaService.message.findMany({
+            take: 20,
+            orderBy: {createdAt: 'desc'},
+            include: {user: true}
+        });
+        let bannedUsers = await this.userService.findAllBannedUser();
+        let filteredMessages = messages.filter((message) => {
+            const isNotBanned = !bannedUsers.some(
+                (bannedUser) => bannedUser.user.id === message.user.id
+            )
+            return isNotBanned;
+          });
+        return filteredMessages.map(e => mapJsonToMessageDto(e));
+    }
     async getLast20Messages(userId: number): Promise<MessageDto[]> {
         let messages = await this.prismaService.message.findMany({
             take: 20,
