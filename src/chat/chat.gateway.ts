@@ -41,7 +41,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
             }
             client.userId = user.id;
             client.username = user.username;
-            if(user.username == 'guest@mailinator.com') {
+            if(user.username != 'guest@mailinator.com') {
                 this.addOnlineUser(client.userId);
                 this.emitOnlineUsers();
             }
