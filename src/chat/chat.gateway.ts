@@ -14,11 +14,12 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
     constructor(
         private readonly authService: AuthService,
         private readonly userService: UserService,
-        private readonly messageService: MessageService
+        private readonly messageService: MessageService,
     ) {
         this.logger.log("Chat Gateway")
     }
     private onlineUsers = [];
+    private banKeywords = [];
     private logger: Logger = new Logger('Chat-Gateway');
     handleDisconnect(client: any) {
         this.logger.log('Disconnected');
@@ -47,9 +48,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
             }
         }
     }
-    afterInit(server: any) {
+    async afterInit(server: any) {
         this.logger.log("Connected")
-        server.emit("onChanged", {})
+        let k = await this.userService.findBanKeywords();
+        this.banKeywords = k.map(e => e.body);
     }
     @SubscribeMessage('sendMessage')
     async handlSendMessage(client: any, data: any) {

@@ -68,4 +68,13 @@ export class UserService {
         let blocked = await this.prismaService.blockedUser.findMany({where: { userId: forUserId }, include: {blocked: true}});
         return blocked.map(e => mapBlockUser(e))
     }
+    addBanKeyword(keyword: string) {
+        return this.prismaService.banKeyword.create({data: { body: keyword }});
+    }
+    findBanKeywords() {
+        return this.prismaService.banKeyword.findMany({});
+    }
+    deleteBankeywords(id: number) {
+        return this.prismaService.banKeyword.delete({where: { id }});
+    }
 }

@@ -1,7 +1,8 @@
-import { BadRequestException, Controller, ForbiddenException, Get, Param, Post, Query, Request, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, ForbiddenException, Get, Param, Post, Query, Request, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiKeyGuard } from 'src/guards/api-key.guard';
 import { EmailAuthKeyGuard } from 'src/guards/email-auth.guard';
+import { AddKeywordDto } from './dto/add-keyword.dto';
 
 @Controller('user')
 export class UserController {
@@ -15,6 +16,22 @@ export class UserController {
     @Get('/bannedUsers')
     bannedUser() {
         return this.userService.findAllBannedUser()
+    }
+    
+    @UseGuards(ApiKeyGuard)
+    @Get('/keywords')
+    getAllKeywords() {
+        return this.userService.findBanKeywords()
+    }
+    @UseGuards(ApiKeyGuard)
+    @Post('/addKeyword/')
+    addKeyword(@Body() dto: AddKeywordDto) {
+        return this.userService.addBanKeyword(dto.body);
+    }
+    @UseGuards(ApiKeyGuard)
+    @Delete('/deleteKeyword/:id')
+    deleteKeyword(@Param('id') id: string) {
+        return this.userService.deleteBankeywords(+id)
     }
     @UseGuards(ApiKeyGuard)
     @Post('/banUser/:userId')
