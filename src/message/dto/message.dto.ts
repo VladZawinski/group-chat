@@ -10,6 +10,7 @@ export class MessageUserDto {
     id: number
     username: string
     name: string
+    avatarUrl?: string
 }
 
 export function mapJsonToMessageDto(json: any): MessageDto {
@@ -26,5 +27,6 @@ function mapJsonToMessageUserDto(json: any): MessageUserDto {
         id: json.id,
         username: json.username,
         name: json.name,
+        avatarUrl: json.avatarUrl
     };
 }
