@@ -1,10 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import { Role } from '@prisma/client';
+import { SignInDto } from './dto/sign-in.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class AuthService {
-    constructor(private readonly userService: UserService) {}
+    constructor(
+        private readonly userService: UserService,
+        private readonly prismaService: PrismaService,
+    ) {}
     
     async generateToken(email: string, name: string): Promise<string> {
         const existing = await this.userService.findOne(email);
@@ -16,6 +21,32 @@ export class AuthService {
                     username: email,
                     role: Role.USER,
                     name: name
+                }
+            })
+            return this.encrypt(newUser.username)
+        }
+    }
+    async signIn(dto: SignInDto): Promise<string> {
+        const existing = await this.userService.findOne(dto.email);
+        if(existing != null) {
+            await this.prismaService.user.update({
+                where: { id: existing.id },
+                data: {
+                    name: dto.name,
+                    avatarUrl: dto.avatarUrl,
+                    token: dto.token
+                }
+            })
+            return this.encrypt(existing.username)
+        } else {
+            const newUser = await this.userService.createOne({
+                data: {
+                    username: dto.email,
+                    role: Role.USER,
+                    name: dto.name,
+                    authType: dto.authType,
+                    avatarUrl: dto.avatarUrl,
+                    token: dto.token
                 }
             })
             return this.encrypt(newUser.username)
