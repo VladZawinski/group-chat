@@ -55,13 +55,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
     @SubscribeMessage('sendMessage')
     async handlSendMessage(client: any, data: any) {
         let userId = client.userId
-        let result = await this.userService.findBanKeywords();
-        let keywords = result.map(e => e.body);
-        let containBanKeywords = this.filterText(data.message, keywords);
-        if(!containBanKeywords) {
-            let sentMessage = await this.messageService.create(userId, data.message)
+        // let result = await this.userService.findBanKeywords();
+        // let keywords = result.map(e => e.body);
+        // let containBanKeywords = this.filterText(data.message, keywords);
+        let sentMessage = await this.messageService.create(userId, data.message)
             this.server.emit(ON_NEW_MESSAGE_ADDED_EVENT, sentMessage)
-        }
     }
     private addOnlineUser(userId: string) {
         if (!this.onlineUsers.includes(userId)) {
