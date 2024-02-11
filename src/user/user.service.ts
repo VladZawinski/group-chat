@@ -77,4 +77,32 @@ export class UserService {
     deleteBankeywords(id: number) {
         return this.prismaService.banKeyword.delete({where: { id }});
     }
+    async subscribeNotification(forUserId: number, toUserId: number) {
+        let subscriber = await this.prismaService.user.findFirst({where: { id: toUserId }, include: { subscribers: true}});
+        let subscriberIds = subscriber.subscribers.map(e => e.followerId)
+        if(subscriberIds.includes(forUserId)) {
+            throw new BadRequestException("Already Subscribed!");
+        }
+        return this.prismaService.subscribe.create({
+            data: {
+                followerId: forUserId,
+                followsId: toUserId
+            }
+        });
+    }
+    getSubscribe(followsId: number, followerId: number) {
+        return this.prismaService.subscribe.findFirst({where: { followerId, followsId }})
+    }
+    getSubscribersOfUser(userId: number) {
+        return this.prismaService.user.findFirst({where: { id: userId}, include: { subscribers: { include: { follower: true}}}})
+    }
+    unsubscribeNotification(subscribeId: number) {
+        return this.prismaService.subscribe.delete({where: { id: subscribeId }});
+    }
+    registerFcmToken(userId: number, token: string) {
+        return this.prismaService.user.update({where: { id: userId}, data: { fcmToken: token }})
+    }
+    logout(userId: number) {
+        return this.prismaService.user.update({where: { id: userId}, data: { fcmToken: null }})
+    }
 }

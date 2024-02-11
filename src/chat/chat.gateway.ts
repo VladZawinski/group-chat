@@ -2,6 +2,7 @@ import { Logger } from "@nestjs/common";
 import { MessageBody, OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Socket } from 'socket.io';
 import { AuthService } from "src/auth/auth.service";
+import { FcmService } from "src/fcm/fcm.service";
 import { MessageService } from "src/message/message.service";
 import { UserService } from "src/user/user.service";
 
@@ -15,6 +16,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
         private readonly authService: AuthService,
         private readonly userService: UserService,
         private readonly messageService: MessageService,
+        private readonly fcmService: FcmService
     ) {
         this.logger.log("Chat Gateway")
     }
@@ -50,7 +52,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
     }
     async afterInit(server: any) {
         this.logger.log("Connected")
-        
+        // await this.fcmService.sendToToken("ed8L_okRQW2Btr66KXAwnd:APA91bHHWzAxJXZW4gN1XsuYyJvrsW1bx_lpRTsJG84zZTMgrvyUCA5QsEd7SvcaNTBVVExu8_g5uIR0aFaycXXdA4pgIVBX5j6pdVCeGfdTT8RAhRvmPrQn0acSN7bABB1RZpIfDVRT", "Hello")
     }
     @SubscribeMessage('sendMessage')
     async handlSendMessage(client: any, data: any) {
@@ -59,9 +61,19 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
         if(!hasBanned) {
             let sentMessage = await this.messageService.create(userId, data.message)
             this.server.emit(ON_NEW_MESSAGE_ADDED_EVENT, sentMessage)
+            await this.notifyToSubscribers(userId, data.message);
         }
-        
     }
+
+    private async notifyToSubscribers(userId: number, body: string) {
+        let sender = await this.userService.getSubscribersOfUser(userId);
+        let subscribers = sender.subscribers;
+        for (let i = 0; i < subscribers.length; i++) {
+            const element = subscribers[i];
+            await this.fcmService.sendToToken(element.follower.fcmToken, body)
+        }
+    }
+
     private addOnlineUser(userId: string) {
         if (!this.onlineUsers.includes(userId)) {
             this.onlineUsers.push(userId);
@@ -84,7 +96,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
             this.emitOnlineUsers();
         }
     }
-
 }
 
 const ON_NEW_MESSAGE_ADDED_EVENT = "onNewMessageAdded"

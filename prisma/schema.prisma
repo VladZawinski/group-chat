@@ -20,7 +20,10 @@ model User {
   token String?
   messages Message[]
   blockedUsers BlockedUser[] @relation("block")
+  subscribes       Subscribe[]     @relation("SubscriberToUser")
+  subscribers     Subscribe[]     @relation("UserToSubscriber")
   bannedUser BannedUser?
+  fcmToken String?
   createdAt  DateTime   @default(now())
 }
 
@@ -48,6 +51,16 @@ model BannedUser {
   user      User       @relation(fields: [userId], references: [id])
   reason    String
   createdAt DateTime   @default(now())
+}
+
+model Subscribe {
+  id          Int      @id @default(autoincrement())
+  follower    User     @relation("UserToSubscriber", fields: [followerId], references: [id])
+  followerId  Int
+  follows     User     @relation("SubscriberToUser", fields: [followsId], references: [id])
+  followsId   Int
+  createdAt   DateTime @default(now())
+  @@unique([followerId, followsId])
 }
 
 model BanKeyword {

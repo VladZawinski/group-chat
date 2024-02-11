@@ -3,6 +3,7 @@ import { UserService } from './user.service';
 import { ApiKeyGuard } from 'src/guards/api-key.guard';
 import { EmailAuthKeyGuard } from 'src/guards/email-auth.guard';
 import { AddKeywordDto } from './dto/add-keyword.dto';
+import { RegisterFirebaseTokenDto } from './dto/user-firebase.dto';
 
 @Controller('user')
 export class UserController {
@@ -57,15 +58,34 @@ export class UserController {
     }
     @UseGuards(EmailAuthKeyGuard)
     @Post('/unblock')
-    async unblockUser(@Request() request,@Query('blockId') blockId: string) {
+    async unblockUser(@Request() request, @Query('blockId') blockId: string) {
         let userid = request.userId;
         let block = await this.userService.getBlockById(+blockId);
         if(block == null) {
             throw new BadRequestException("")
         }
-        if(block.userId != userid){
+        if(block.userId != userid) {
             throw new ForbiddenException()
         }
         return this.userService.unblockUser(+blockId)
+    }
+    @UseGuards(EmailAuthKeyGuard)
+    @Post('/subscribe')
+    async subscribeNotification(@Request() request, @Query('userId') toUserId: string) {
+        let userid = request.userId;
+        return this.userService.subscribeNotification(userid, +toUserId);
+    }
+    @UseGuards(EmailAuthKeyGuard)
+    @Post('/unsubscribe')
+    async unsubscribeNotification(@Request() request, @Query('subscriberId') subscribeId: string) {
+        let userid = request.userId;
+        return this.userService.getSubscribe(+subscribeId, userid)
+    }
+    @UseGuards(EmailAuthKeyGuard)
+    @Post('/registerFirebaseToken')
+    async registerFirebaseToken(@Request() request) {
+        let userid = request.userId;
+        let dto: RegisterFirebaseTokenDto = request.body;
+        return this.userService.registerFcmToken(userid, dto.token)
     }
 }

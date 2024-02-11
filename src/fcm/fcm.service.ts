@@ -14,5 +14,14 @@ export class FcmService {
             body: body
           }
         });
-    }
+  }
+  async sendToToken(token: string, message: string) {
+    return this.firebase.messaging.send({
+      token: token,
+      notification: {
+        title: 'You got a message!',
+        body: message
+      }
+    })
+  }
 }
