@@ -70,6 +70,12 @@ export class UserController {
         return this.userService.unblockUser(+blockId)
     }
     @UseGuards(EmailAuthKeyGuard)
+    @Get('/subscribers')
+    async getSubscribers(@Request() request) {
+        let userid = request.userId;
+        return this.userService.getSubscribersOfUser(userid);
+    }
+    @UseGuards(EmailAuthKeyGuard)
     @Post('/subscribe')
     async subscribeNotification(@Request() request, @Query('userId') toUserId: string) {
         let userid = request.userId;
