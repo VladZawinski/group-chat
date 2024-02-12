@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { Prisma, User } from '@prisma/client';
+import { Prisma, ReportReason, User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { BanUserDto, mapBanUser } from './dto/ban-user.dto';
 import { BlockedUserDto, mapBlockUser } from './dto/block-user.dto';
@@ -132,4 +132,22 @@ export class UserService {
     logout(userId: number) {
         return this.prismaService.user.update({where: { id: userId}, data: { fcmToken: null }})
     }
+    async createReport(messageId: number, reason: ReportReason, reportBy: number): Promise<any> {
+        return this.prismaService.report.create({
+          data: {
+            messageId,
+            reason,
+            reportByUserId: reportBy
+          },
+        });
+      }
+
+      async getLast10Reports(): Promise<any> {
+        return this.prismaService.report.findMany({
+          take: 10,
+          orderBy: {
+            createdAt: 'desc',
+          },
+        });
+      }
 }

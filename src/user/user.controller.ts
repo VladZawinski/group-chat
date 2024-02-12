@@ -4,6 +4,7 @@ import { ApiKeyGuard } from 'src/guards/api-key.guard';
 import { EmailAuthKeyGuard } from 'src/guards/email-auth.guard';
 import { AddKeywordDto } from './dto/add-keyword.dto';
 import { RegisterFirebaseTokenDto } from './dto/user-firebase.dto';
+import { CreateReportDto } from './dto/report.dto';
 
 @Controller('user')
 export class UserController {
@@ -106,5 +107,16 @@ export class UserController {
     async logout(@Request() request) {
         let userid = request.userId;
         return this.userService.logout(userid)
+    }
+    @Post('/report')
+    async report(@Request() request) {
+        let userid = request.userId;
+        let body: CreateReportDto = request.body;
+        return this.userService.createReport(body.messageId, body.reason, userid)
+        
+    }
+    @Get('/getLast10Reports')
+    async getLast10Reports() {
+        return this.userService.getLast10Reports()
     }
 }
