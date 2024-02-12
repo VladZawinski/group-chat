@@ -1,5 +1,6 @@
 import { Logger } from "@nestjs/common";
 import { MessageBody, OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
+import { User } from "@prisma/client";
 import { Socket } from 'socket.io';
 import { AuthService } from "src/auth/auth.service";
 import { FcmService } from "src/fcm/fcm.service";
@@ -20,7 +21,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
     ) {
         this.logger.log("Chat Gateway")
     }
-    private onlineUsers = [];
+    private onlineUsers: User[] = [];
     private banKeywords = [];
     private logger: Logger = new Logger('Chat-Gateway');
     handleDisconnect(client: any) {
@@ -45,7 +46,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
             client.userId = user.id;
             client.username = user.username;
             if(user.username != 'guest@mailinator.com') {
-                this.addOnlineUser(client.userId);
+                this.addOnlineUser(client);
                 this.emitOnlineUsers();
             }
         }
@@ -74,9 +75,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
         }
     }
 
-    private addOnlineUser(userId: string) {
-        if (!this.onlineUsers.includes(userId)) {
-            this.onlineUsers.push(userId);
+    private addOnlineUser(user: User) {
+        if (!this.onlineUsers.includes(user)) {
+            this.onlineUsers.push(user);
         }
     }
     filterText(text: string, banKeywords: string[]): boolean {
@@ -84,12 +85,16 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
     }
     
     private emitOnlineUsers() {
-        this.server.emit(ON_ONLINE_USERS_CHANGED, this.onlineUsers.length);
+        let payload = {
+            count: this.onlineUsers.length,
+            members: this.onlineUsers
+        }
+        this.server.emit(ON_ONLINE_USERS_CHANGED, payload);
     }
 
     private removeOnlineUser(client: any) {
         if(client.username != 'guest@mailinator.com') {
-            const index = this.onlineUsers.indexOf(client.userId);
+            const index = this.onlineUsers.findIndex(e => e.id == client.userId)
             if (index !== -1) {
                 this.onlineUsers.splice(index, 1);
             }
