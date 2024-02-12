@@ -108,6 +108,7 @@ export class UserController {
         let userid = request.userId;
         return this.userService.logout(userid)
     }
+    @UseGuards(EmailAuthKeyGuard)
     @Post('/report')
     async report(@Request() request) {
         let userid = request.userId;

@@ -148,6 +148,13 @@ export class UserService {
           orderBy: {
             createdAt: 'desc',
           },
+          include: {
+            message: {
+                include: {
+                    user: true
+                }
+            }
+          }
         });
       }
 }
