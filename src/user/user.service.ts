@@ -93,6 +93,30 @@ export class UserService {
     getSubscribe(followsId: number, followerId: number) {
         return this.prismaService.subscribe.findFirst({where: { followerId, followsId }})
     }
+    async getUserFollowing(userId: number) {
+        const follows = await this.prismaService.subscribe.findMany({
+            where: {
+                followerId: userId,
+            },
+            select: {
+                follows: true,
+            },
+        });
+        const followsIds = follows.map((follow) => follow.follows);
+        return followsIds;
+    }
+    async getFollowingUserIds(userId: number) {
+        const follows = await this.prismaService.subscribe.findMany({
+            where: {
+                followerId: userId,
+            },
+            select: {
+                follows: true,
+            },
+        });
+        const followsIds = follows.map((follow) => follow.follows);
+        return followsIds.map(e => e.id);
+    }
     getSubscribersOfUser(userId: number) {
         return this.prismaService.user.findFirst({where: { id: userId}, include: { subscribers: { include: { follower: true}}}})
     }

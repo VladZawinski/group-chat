@@ -22,7 +22,7 @@ export class MessageService {
             )
             return isNotBanned;
           });
-        return filteredMessages.map(e => mapJsonToMessageDto(e));
+        return filteredMessages.map(e => mapJsonToMessageDto(e, []));
     }
     async getLast20Messages(userId: number): Promise<MessageDto[]> {
         let messages = await this.prismaService.message.findMany({
@@ -45,7 +45,8 @@ export class MessageService {
             )
             return isNotBlocked && isNotBanned;
           });
-        return filteredMessages.map(e => mapJsonToMessageDto(e));
+        let followedUserIds = await this.userService.getFollowingUserIds(userId);
+        return filteredMessages.map(e => mapJsonToMessageDto(e, followedUserIds));
     }
     async create(userId: number, body: string) {
         return this.prismaService.message.create({

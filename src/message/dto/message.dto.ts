@@ -11,22 +11,24 @@ export class MessageUserDto {
     username: string
     name: string
     avatarUrl?: string
+    subscribed?: boolean
 }
 
-export function mapJsonToMessageDto(json: any): MessageDto {
+export function mapJsonToMessageDto(json: any, followedUserIds: number[]): MessageDto {
     return {
         id: json.id,
         content: json.content,
         createdAt: json.createdAt,
-        user: mapJsonToMessageUserDto(json.user),
+        user: mapJsonToMessageUserDto(json.user, followedUserIds.includes(json.user.id)),
     };
 }
 
-function mapJsonToMessageUserDto(json: any): MessageUserDto {
+function mapJsonToMessageUserDto(json: any, subscribed: boolean): MessageUserDto {
     return {
         id: json.id,
         username: json.username,
         name: json.name,
-        avatarUrl: json.avatarUrl
+        avatarUrl: json.avatarUrl,
+        subscribed: subscribed
     };
 }

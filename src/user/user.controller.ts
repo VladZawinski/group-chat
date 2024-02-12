@@ -73,7 +73,7 @@ export class UserController {
     @Get('/subscribers')
     async getSubscribers(@Request() request) {
         let userid = request.userId;
-        return this.userService.getSubscribersOfUser(userid);
+        return this.userService.getUserFollowing(userid);
     }
     @UseGuards(EmailAuthKeyGuard)
     @Post('/subscribe')
@@ -85,7 +85,8 @@ export class UserController {
     @Post('/unsubscribe')
     async unsubscribeNotification(@Request() request, @Query('subscriberId') subscribeId: string) {
         let userid = request.userId;
-        return this.userService.getSubscribe(+subscribeId, userid)
+        let existing = await this.userService.getSubscribe(+subscribeId, +userid)
+        return this.userService.unsubscribeNotification(existing.id)
     }
     @UseGuards(EmailAuthKeyGuard)
     @Post('/registerFirebaseToken')
@@ -93,5 +94,11 @@ export class UserController {
         let userid = request.userId;
         let dto: RegisterFirebaseTokenDto = request.body;
         return this.userService.registerFcmToken(userid, dto.token)
+    }
+    @UseGuards(EmailAuthKeyGuard)
+    @Post('/logout')
+    async logout(@Request() request) {
+        let userid = request.userId;
+        return this.userService.logout(userid)
     }
 }
