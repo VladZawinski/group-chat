@@ -77,7 +77,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
     }
 
     private addOnlineUser(user: User) {
-        if (!this.onlineUsers.includes(user)) {
+        let existing = this.onlineUsers.find(e => e.id == user.id)
+        if (existing == null) {
             this.onlineUsers.push(user);
         }
     }
