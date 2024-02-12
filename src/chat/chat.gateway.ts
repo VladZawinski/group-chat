@@ -69,7 +69,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
         let sender = await this.userService.getUserFollowing(userId);
         let subscribers = sender;
         console.log('====================================');
-        console.log(subscribers);
+        console.log(`Subscribers: ${subscribers}`);
         console.log('====================================');
         for (let i = 0; i < subscribers.length; i++) {
             const element = subscribers[i];
