@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { BannedUser, BlockedUser, Prisma, User } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { BanUserDto, mapBanUser } from './dto/ban-user.dto';
 import { BlockedUserDto, mapBlockUser } from './dto/block-user.dto';
@@ -122,6 +122,9 @@ export class UserService {
     }
     unsubscribeNotification(subscribeId: number) {
         return this.prismaService.subscribe.delete({where: { id: subscribeId }});
+    }
+    async unsubscribedAllFollowing(userId: number) {
+        return this.prismaService.subscribe.deleteMany({where: { followsId: userId }})
     }
     registerFcmToken(userId: number, token: string) {
         return this.prismaService.user.update({where: { id: userId}, data: { fcmToken: token }})

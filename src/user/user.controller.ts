@@ -89,6 +89,12 @@ export class UserController {
         return this.userService.unsubscribeNotification(existing.id)
     }
     @UseGuards(EmailAuthKeyGuard)
+    @Post('/unsubscribeAll')
+    async unsubscribeAll(@Request() request) {
+        let userid = request.userId;
+        return this.userService.unsubscribedAllFollowing(userid)
+    }
+    @UseGuards(EmailAuthKeyGuard)
     @Post('/registerFirebaseToken')
     async registerFirebaseToken(@Request() request) {
         let userid = request.userId;
