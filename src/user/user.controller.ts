@@ -120,4 +120,10 @@ export class UserController {
     async getLast10Reports() {
         return this.userService.getLast10Reports()
     }
+    @UseGuards(EmailAuthKeyGuard)
+    @Post('checkAlreadyReport')
+    async hasAlreadyReport(@Request() request, @Query('messageId') messageId: string) {
+        let userid = request.userId;
+        return this.userService.hasAlreadyReport(+messageId, userid)
+    }
 }

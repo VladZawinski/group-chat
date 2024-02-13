@@ -3,6 +3,7 @@ import { Prisma, ReportReason, User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { BanUserDto, mapBanUser } from './dto/ban-user.dto';
 import { BlockedUserDto, mapBlockUser } from './dto/block-user.dto';
+import { HasAlreadyReportDto } from './dto/report.dto';
 
 @Injectable()
 export class UserService {
@@ -156,5 +157,13 @@ export class UserService {
             }
           }
         });
-      }
+    }
+    async hasAlreadyReport(messageId, userId): Promise<HasAlreadyReportDto> {    
+        let existing = await this.prismaService.report.findFirst({where: { messageId: messageId, reportByUserId: userId }})
+        if(existing == null) {
+            return {
+                alreadyReported: false
+            }
+        }
+    }
 }
