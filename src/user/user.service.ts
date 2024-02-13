@@ -165,5 +165,9 @@ export class UserService {
                 alreadyReported: false
             }
         }
+        return {
+            alreadyReported: true,
+            reportedAt: existing.createdAt
+        }
     }
 }
