@@ -5,11 +5,13 @@ import { EmailAuthKeyGuard } from 'src/guards/email-auth.guard';
 import { AddKeywordDto } from './dto/add-keyword.dto';
 import { RegisterFirebaseTokenDto } from './dto/user-firebase.dto';
 import { CreateReportDto } from './dto/report.dto';
+import { FcmService } from 'src/fcm/fcm.service';
 
 @Controller('user')
 export class UserController {
     constructor(
-        private readonly userService: UserService
+        private readonly userService: UserService,
+        private readonly fcmService: FcmService
     ) {}
     @Get('/')
     findAllUser() {
@@ -125,5 +127,12 @@ export class UserController {
     async hasAlreadyReport(@Request() request, @Query('messageId') messageId: string) {
         let userid = request.userId;
         return this.userService.hasAlreadyReport(+messageId, userid)
+    }
+    @UseGuards(EmailAuthKeyGuard)
+    @Post('testNotiToken')
+    async testNoti(@Request() request) {
+        let userid = request.userId;
+        let user = await this.userService.findById(+userid)
+        await this.fcmService.sendToToken(user.fcmToken, 'Test Noti with token');
     }
 }

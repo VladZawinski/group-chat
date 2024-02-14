@@ -11,6 +11,9 @@ export class UserService {
     async findOne(username: string): Promise<User | undefined> {
         return this.prismaService.user.findFirst({ where: { username }});
     }
+    async findById(id: number): Promise<User | undefined> {
+        return this.prismaService.user.findFirst({ where: { id }});
+    }
     async createOne(user: Prisma.UserCreateArgs){
         return this.prismaService.user.create(user)
     }
