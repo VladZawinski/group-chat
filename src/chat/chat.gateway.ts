@@ -75,7 +75,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
             const element = subscribers[i];
             this.logger.log(`Each Subscriber: ${element}`)
             this.logger.log(`Each Tokem : ${element.follower.token}`)
-            await this.fcmService.sendToToken(element.follower.token, body)
+            let fcmToken = element.follower.fcmToken;
+            if(fcmToken != null) {
+                await this.fcmService.sendToToken(fcmToken, body)
+            }
         }
     }
 
