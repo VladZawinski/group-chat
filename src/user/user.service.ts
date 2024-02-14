@@ -122,7 +122,14 @@ export class UserService {
         return followsIds.map(e => e.id);
     }
     getSubscribersOfUser(userId: number) {
-        return this.prismaService.user.findFirst({where: { id: userId}, include: { subscribers: { include: { follows: true }}, subscribes: true }})
+        return this.prismaService.subscribe.findMany({
+            where: {
+                followsId: userId
+            },
+            include: {
+                follower: true
+            }
+        });
     }
     unsubscribeNotification(subscribeId: number) {
         return this.prismaService.subscribe.delete({where: { id: subscribeId }});
