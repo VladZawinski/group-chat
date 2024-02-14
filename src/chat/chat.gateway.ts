@@ -68,14 +68,14 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
     }
 
     private async notifyToSubscribers(userId: number, body: string) {
-        let sender = await this.userService.getUserFollowing(userId);
-        let subscribers = sender;
+        let sender = await this.userService.getSubscribersOfUser(userId);
+        let subscribers = sender.subscribers;
         this.logger.log(`Subscribers: ${subscribers}`)
         for (let i = 0; i < subscribers.length; i++) {
             const element = subscribers[i];
             this.logger.log(`Each Subscriber: ${element}`)
-            this.logger.log(`Each Tokem : ${element.fcmToken}`)
-            await this.fcmService.sendToToken(element.fcmToken, body)
+            this.logger.log(`Each Tokem : ${element.follower.token}`)
+            await this.fcmService.sendToToken(element.follower.token, body)
         }
     }
 
