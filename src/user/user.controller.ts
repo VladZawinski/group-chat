@@ -79,6 +79,12 @@ export class UserController {
         return this.userService.getUserFollowing(userid);
     }
     @UseGuards(EmailAuthKeyGuard)
+    @Get('/getFollowers')
+    async getFollowers(@Request() request) {
+        let userid = request.userId;
+        return this.userService.getSubscribersOfUser(userid);
+    }
+    @UseGuards(EmailAuthKeyGuard)
     @Post('/subscribe')
     async subscribeNotification(@Request() request, @Query('userId') toUserId: string) {
         let userid = request.userId;
