@@ -135,7 +135,7 @@ export class UserService {
         return this.prismaService.subscribe.delete({where: { id: subscribeId }});
     }
     async unsubscribedAllFollowing(userId: number) {
-        return this.prismaService.subscribe.deleteMany({where: { followsId: userId }})
+        return this.prismaService.subscribe.deleteMany({where: { followerId: userId }})
     }
     registerFcmToken(userId: number, token: string) {
         return this.prismaService.user.update({where: { id: userId}, data: { fcmToken: token }})
