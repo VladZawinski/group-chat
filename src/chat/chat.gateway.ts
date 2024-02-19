@@ -78,7 +78,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
             console.log(`Fcm Token: ${fcmToken}`);
             
             if(fcmToken != null) {
-                await this.fcmService.sendToToken('cLUlevCTRoCHqLmtBCCMwV:APA91bE32pI3cFhCfxnqz9QsQPc3ybVgbrTMuBlSXgTGsAKuODUcwElRXQFYPf0ooyel3fnB54OFbU6bY5eoeYdKyXRvSYsj48lFNcb9nLXBmaKuG_5W16uY_OFdrv-FVCdIlXABer8l', body)
+                await this.fcmService.sendToToken(fcmToken, body)
             }
         }
     }
