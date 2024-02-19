@@ -65,6 +65,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
             this.server.emit(ON_NEW_MESSAGE_ADDED_EVENT, sentMessage)
             let sender = await this.userService.findById(userId)
             const msgBody = `${sender.name}: ${data.message}`
+            console.log(msgBody);
             await this.notifyToSubscribers(userId, msgBody);
         }
     }
