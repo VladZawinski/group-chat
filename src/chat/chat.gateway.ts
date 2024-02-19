@@ -63,18 +63,17 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
         if(!hasBanned) {
             let sentMessage = await this.messageService.create(userId, data.message)
             this.server.emit(ON_NEW_MESSAGE_ADDED_EVENT, sentMessage)
-            await this.notifyToSubscribers(userId, data.message);
+            let sender = await this.userService.findById(userId)
+            const msgBody = `${sender.name}: ${data.message}`
+            await this.notifyToSubscribers(userId, msgBody);
         }
     }
 
     private async notifyToSubscribers(userId: number, body: string) {
         let sender = await this.userService.getSubscribersOfUser(userId);
         let subscribers = sender;
-        this.logger.log(`Subscribers: ${subscribers}`)
         for (let i = 0; i < subscribers.length; i++) {
             const element = subscribers[i];
-            this.logger.log(`Each Subscriber: ${element}`)
-            this.logger.log(`Each Tokem : ${element.follower.token}`)
             let fcmToken = element.follower.fcmToken;
             if(fcmToken != null) {
                 await this.fcmService.sendToToken(fcmToken, body)
