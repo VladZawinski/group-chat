@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import { Role } from '@prisma/client';
 import { SignInDto } from './dto/sign-in.dto';
@@ -16,14 +16,7 @@ export class AuthService {
         if(existing != null) {
             return this.encrypt(existing.username)
         } else {
-            const newUser = await this.userService.createOne({
-                data: {
-                    username: email,
-                    role: Role.USER,
-                    name: name
-                }
-            })
-            return this.encrypt(newUser.username)
+            throw new UnauthorizedException()
         }
     }
     async signIn(dto: SignInDto): Promise<string> {
