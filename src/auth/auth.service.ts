@@ -27,7 +27,6 @@ export class AuthService {
                 data: {
                     name: dto.name,
                     avatarUrl: dto.avatarUrl,
-                    token: dto.token,
                     fcmToken: dto.fcmToken
                 }
             })
@@ -40,7 +39,6 @@ export class AuthService {
                     name: dto.name,
                     authType: dto.authType,
                     avatarUrl: dto.avatarUrl,
-                    token: dto.token,
                     fcmToken: dto.fcmToken
                 }
             })
