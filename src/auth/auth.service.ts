@@ -20,9 +20,10 @@ export class AuthService {
         }
     }
     async signIn(dto: SignInDto): Promise<string> {
+        if(dto.email == '') {
+            throw new UnauthorizedException()
+        }
         const existing = await this.userService.findOne(dto.email);
-        console.log(dto.fcmToken);
-        
         if(existing != null) {
             await this.prismaService.user.update({
                 where: { id: existing.id },
