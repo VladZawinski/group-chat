@@ -7,4 +7,5 @@ export interface SignInDto {
     authType: AuthType
     token?: string
     avatarUrl?: string
+    fcmToken?: string
 }

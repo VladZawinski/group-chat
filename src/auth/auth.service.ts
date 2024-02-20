@@ -27,7 +27,8 @@ export class AuthService {
                 data: {
                     name: dto.name,
                     avatarUrl: dto.avatarUrl,
-                    token: dto.token
+                    token: dto.token,
+                    fcmToken: dto.fcmToken
                 }
             })
             return this.encrypt(existing.username)
@@ -39,7 +40,8 @@ export class AuthService {
                     name: dto.name,
                     authType: dto.authType,
                     avatarUrl: dto.avatarUrl,
-                    token: dto.token
+                    token: dto.token,
+                    fcmToken: dto.fcmToken
                 }
             })
             return this.encrypt(newUser.username)
